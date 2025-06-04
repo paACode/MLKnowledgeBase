@@ -101,3 +101,54 @@ plot_svm_results(svmfit, d.iris.mmc,
 plot(svmfit, d.iris.mmc,  formula = Petal.Width ~ Petal.Length)
 
 
+
+
+#### Example SVM IRIS ####
+
+#EDA
+iris %>% ggplot(aes(x = Sepal.Length, y = Sepal.Width, color = Species)) + geom_point()
+
+iris %>% ggplot(aes(x = Petal.Length, y = Petal.Width, color = Species)) + geom_point()
+
+set.seed(123) 
+indices <- createDataPartition(iris$Species, p=.85, list = F)
+
+train <- iris %>%
+  slice(indices) # 129 of 150 are train data
+test_in <- iris %>%
+  slice(-indices) %>% select(-Species) # 21 are test
+test_truth <- iris %>%
+  slice(-indices) %>%
+  pull(Species) # these are the results of test data
+
+# With Linear-Kernel
+set.seed(123)
+iris_svm_lin <- svm(Species ~ ., train, 
+                kernel = "linear", scale = TRUE, cost = 10)
+
+plot(iris_svm, train, Petal.Length ~ Petal.Width)
+#Need to check in other 2D Plot where the 2 species are distinguishable --> insert coordinates to slice
+plot(iris_svm, train, Petal.Length ~ Petal.Width, slice = list(Sepal.Length = 6, Sepal.Width = 3))
+
+
+#With Radial-Kernel
+set.seed(123)
+iris_svm_radial <- svm(Species ~ ., train, 
+                kernel = "radial", scale = TRUE, cost = 10)
+
+plot(iris_svm, train, Petal.Length ~ Petal.Width, slice = list(Sepal.Length = 5.5, Sepal.Width = 3.25))
+
+# Test Linear Model
+
+test_pred <- predict(iris_svm_lin, test_in) 
+table(test_pred)
+
+conf_matrix <- confusionMatrix(test_pred, test_truth) 
+conf_matrix
+
+# Test Radial Model
+test_pred <- predict(iris_svm_radial, test_in) 
+table(test_pred)
+
+conf_matrix <- confusionMatrix(test_pred, test_truth) 
+conf_matrix
