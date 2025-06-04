@@ -152,3 +152,42 @@ table(test_pred)
 
 conf_matrix <- confusionMatrix(test_pred, test_truth) 
 conf_matrix
+
+
+
+####Example Hand Writing####
+
+#Structure : Each row contains 64 Pixels V2 to V65 --> Representing a Grayscale img
+# V65 is the label
+
+digits_train <- read.csv("data/optdigits.tra", header = FALSE) 
+# We drop V1 because it only contains of 0
+X = digits_train[,-1]
+# V65 contains the Labels
+Y =  as.factor(digits_train[,65])
+digits_train <- data.frame(x = X, y = Y)
+
+m = matrix(unlist(digits_train[1,-1]),8,8)
+image(m, axes = FALSE, col = grey(seq(0, 1, length = 256)))
+      
+digits_train[1,65]
+
+
+digits_svm <- svm(y~., data = digits_train, kernel = "linear", cost = 10, scale = FALSE)
+table(digits_svm$fitted, digits_train$y)
+
+
+#Now we test 
+
+# Load test set
+digits_test <- read.csv("data/optdigits.tes", header = FALSE)
+
+# Drop V1  because all
+X_test = digits_test[,-1]
+Y_test = as.factor(digits_test[,65])
+
+digits_test <- data.frame(x = X_test, y = Y_test)
+
+# Predict on test set
+pred <- predict(digits_svm, digits_test)
+table(pred, digits_test$y)
