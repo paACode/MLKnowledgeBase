@@ -191,3 +191,20 @@ digits_test <- data.frame(x = X_test, y = Y_test)
 # Predict on test set
 pred <- predict(digits_svm, digits_test)
 table(pred, digits_test$y)
+
+
+#### Example Support Vector Regression ####
+library(MASS)
+set.seed(123) 
+indexes <- createDataPartition(Boston$medv, p = .9, list = F)
+train <- Boston[indexes, ]
+test <- Boston[-indexes, ]
+model_reg <- svm(medv~., data=train, scale = TRUE, epsilon =0.1) 
+print(model_reg)
+
+pred <-  predict(model_reg, test)
+x <- 1:length(test$medv)
+plot(x, test$medv, pch=18, col="red") 
+lines(x, pred, lwd="1", col="blue")
+
+sqrt(mean((test$medv - pred)^2))
